@@ -1,0 +1,26 @@
+{
+  "name": "markdown-alt",
+  "version": "0.0.1",
+  "description": "Markdown alternative version",
+  "keywords": [
+    "markdown-alt",   
+  ],
+  "homepage": "drgdrg",
+  "bugs": "drgdrg",
+  "license": "MIT",
+  "author": {
+    "name": "Yrii Svetlov",
+    "email": "startpascal1@mail.ru"
+  },
+  "files": [
+    "LICENSE",
+    "Readme.md",
+    "index.js"
+  ],
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "drgdrg"
+  }
+
+}
