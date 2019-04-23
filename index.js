@@ -148,7 +148,7 @@ class markdownAlt{
 	        h3 = "(### .+)",
 	        hr = "(____+)",
 	        img = ' *!\\[.*?\\]\\(.+? ".*?"(\\[source=.+?\\])?\\)',
-	        video_GFICAT = ' *!\\[\\*\\*GFYCAT\\*\\*\\]\\(.+? "\\[autoplay=(true|false)\\]\\[quality=(HD|SD)\\]\\[speed=[0-9]\\.[0-9]+?\\]\\[controls=(true|false)\\]"\\)',
+	        video_GFICAT = ' *!\\|GFYCAT\\|\\(.+? "\\[autoplay=(true|false)\\]\\[quality=(HD|SD)\\]\\[speed=[0-9]\\.[0-9]+?\\]\\[controls=(true|false)\\]"\\)',
 	        video_YOUTUBE = ' *!\\[\\*\\*YOUTUBE\\*\\*\\]\\(.+?\\)',
 	        video_VIMEO = ' *!\\[\\*\\*VIMEO\\*\\*\\]\\(.+?\\)',
 
@@ -236,12 +236,12 @@ class markdownAlt{
 	// GFYCAT
 	//------------------------------
 	/*
-	    ![**GFYCAT**](https://gfycat.com/foolishslimegret "[autoplay=false][quality=HD][speed=1.0][controls=true]")
+	    !|GFYCAT|(https://gfycat.com/foolishslimegret "[autoplay=false][quality=HD][speed=1.0][controls=true]")
 	*/ 
 
 	static to_HTML__GFYCAT(text){
-	    return text.replace(/(?:\n|^)!\[\*\*GFYCAT\*\*\]\((.+?) "\[autoplay=(true|false)\]\[quality=(HD|SD)\]\[speed=([0-9]\.[0-9]+?)\]\[controls=(true|false)\]"\)\n/g, function(match, p1, p2, p3, p4, p5, offset, str_full){
-			
+	    return text.replace(/(?:\n|^)!\|GFYCAT\|\((.+?) "\[autoplay=(true|false)\]\[quality=(HD|SD)\]\[speed=([0-9]\.[0-9]+?)\]\[controls=(true|false)\]"\)\n/g, function(match, p1, p2, p3, p4, p5, offset, str_full){
+
 		    if(markdownAlt.lock__ESCAPE){
 		    	p1 = markdownAlt.safeAttrHtml(p1);
 		    }
@@ -252,6 +252,8 @@ class markdownAlt{
 
 	static layout__GFYCAT(href, autoplay, quality, speed, controls){
 
+		href = href.replace(/^(https:\/\/gfycat\.com\/)(.*)/g, '$1ifr/$2');
+
 		href = href+"?autoplay="+autoplay+"&hd="+quality+"&speed="+speed+"&controls="+controls;
 
 	    return '<div><iframe src="'+href+'" frameborder="0" scrolling="no" width="100%" height="100%" allowfullscreen></iframe></div>';
@@ -260,8 +262,13 @@ class markdownAlt{
 	/*
 	//Example extends function
 
-		markdownAlt.layout__GFYCAT = function(href, autoplay, quality, speed, controls){
-		    return href+autoplay+quality+speed+controls;
+		static layout__GFYCAT(href, autoplay, quality, speed, controls){
+
+			href = href.replace(/^(https:\/\/gfycat\.com\/)(.*)/g, '$1ifr/$2');
+
+			href = href+"?autoplay="+autoplay+"&hd="+quality+"&speed="+speed+"&controls="+controls;
+
+		    return '<div><iframe src="'+href+'" frameborder="0" scrolling="no" width="100%" height="100%" allowfullscreen></iframe></div>';
 		}
 	*/
 	//------------------------------
