@@ -195,7 +195,7 @@ class markdownAlt{
 	*/  
 
 	static to_HTML__IMG(text){
-	    return text.replace(/(?:\n|^)!\[(.*?)\]\((.+?) "(.*?)"(?:\[source=(.*?)?\])\)\n/g, function(match, p1, p2, p3, p4, offset, str_full){
+	    return text.replace(/(?:\n|^)!\[(.*?)\]\((.+?) "(.*?)"(?:\[source=(.+?)\])?\)\n/g, function(match, p1, p2, p3, p4, offset, str_full){
 
 			    if(markdownAlt.lock__ESCAPE){
 			    	p1 = markdownAlt.escapeHtml(p1);
@@ -212,15 +212,15 @@ class markdownAlt{
 	    });
 	} 
 
-	static layout__IMG(alt, link, description, linksource){
-	    return '<img src="'+link+'" alt="'+alt+'">';
+	static layout__IMG(alt, href, description, linksource){
+	    return '<img src="'+href+'" alt="'+alt+'">';
 	}
 
 	/*
 	//Example extends function
 
-		markdownAlt.layout__IMG = function(alt, link, description, linksource){
-		    return alt+link+description+linksource;
+		markdownAlt.layout__IMG = function(alt, href, description, linksource){
+		    return alt+href+description+linksource;
 		}
 	*/
 	//------------------------------
@@ -353,6 +353,10 @@ class markdownAlt{
     };
 
     static escapeHtml(string) {
+    	if(undefined === string){
+    		return '';
+    	}
+
         return String(string).replace(/[&<>"'`=\/]/g, function (s) {
           return markdownAlt.entityMap[s];
         });
@@ -360,6 +364,10 @@ class markdownAlt{
 
 
     static safeAttrHtml(string) {
+    	if(undefined === string){
+    		return '';
+    	}
+
         return string.replace(/["']/g, '');
     }
 
