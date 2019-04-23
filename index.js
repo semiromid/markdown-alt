@@ -7,7 +7,7 @@ class markdownAlt{
 		To exclude function parse.
 		Example:
 
-		markdownAlt.lock__GFYCAT = false;
+		markdownAlt.lock__GFYCAT = true;
 	*/
 	static lock__P = true;
 	static lock__PARAGRAPH = true;
@@ -20,6 +20,9 @@ class markdownAlt{
 	static lock__GFYCAT = true;
 	static lock__YOUTUBE = true;
 	static lock__VIMEO = true;
+
+	static lock__ESCAPE = true;
+	
 	
 
 
@@ -64,10 +67,16 @@ class markdownAlt{
 	    if(this.lock__YOUTUBE){
 	    	html = this.to_HTML__YOUTUBE(html);
 	    }
-	    
+
 	    if(this.lock__VIMEO){
 	    	html = this.to_HTML__VIMEO(html);
 	    }	   
+
+
+
+	    if(this.lock__ESCAPE){
+	    	html = this.escapeHtml(html);
+	    }	
 
 	    return html;
 	}
@@ -288,6 +297,24 @@ class markdownAlt{
 	*/
 	//------------------------------
 	//------------------------------
+
+
+    static entityMap = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;',
+        '/': '&#x2F;',
+        '`': '&#x60;',
+        '=': '&#x3D;'
+    };
+
+    static escapeHtml(string) {
+        return String(string).replace(/[&<>"'`=\/]/g, function (s) {
+          return markdownAlt.entityMap[s];
+        });
+    }
 }
 
 
