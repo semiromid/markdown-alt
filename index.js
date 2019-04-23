@@ -29,7 +29,7 @@ class markdownAlt{
 	static getHTML(html){
 
 	    if(this.lock__P){
-	    	html = this.to_HTML__set_p(html);
+	    	html = this.to_HTML__set_p(html);	    	
 	    }	
 
 	    if(this.lock__PARAGRAPH){
@@ -72,12 +72,6 @@ class markdownAlt{
 	    	html = this.to_HTML__VIMEO(html);
 	    }	   
 
-
-
-	    if(this.lock__ESCAPE){
-	    	html = this.escapeHtml(html);
-	    }	
-
 	    return html;
 	}
 
@@ -109,14 +103,21 @@ class markdownAlt{
 
 	static to_HTML__set_a(text){
 	    return text.replace(/([\s\S]*?[^!])\[(.+?)\]\(([^\s]+?)\)([\s\S]*?)/g, function(match, p1, p2, p3, p4, offset, str_full){
-	      return p1+'<a rel="noopener noreferrer nofollow" target="_blank" href="'+p3+'">'+p2+'</a>'+p4;
+	      
+		    if(markdownAlt.lock__ESCAPE){
+		    	p2 = markdownAlt.escapeHtml(p2);
+		    	
+		    	p3 = markdownAlt.safeAttrHtml(p3);
+		    }
+
+	      	return p1+'<a rel="noopener noreferrer nofollow" target="_blank" href="'+p3+'">'+p2+'</a>'+p4;
 	    });
 	}
 
 
 	static to_HTML__set_hr(text){
 	    return text.replace(/([\s\S]*?\n\n)(____+?)(\n\n(?!____+))/g, function(match, p1, p2, p3, offset, str_full){
-	      return p1+'<div class="wy__m1__markdown__hr"><hr></div>'+p3;
+	      	return p1+'<hr>'+p3;
 	    });
 	}   
 
@@ -127,6 +128,11 @@ class markdownAlt{
 	    return text.replace(/((?:\n\n+)*)([\s\S]+?)(\n\n+|$)/g, function(match, p1, p2, p3, offset, str_full){
 
 	        if(!markdownAlt.to_HTML__testTAG(p2)){
+
+			    if(markdownAlt.lock__ESCAPE){
+			    	p2 = markdownAlt.escapeHtml(p2);
+			    }	  
+			          	
 	            p2 = "<p>"+p2+"</p>";
 	        }
 
@@ -158,12 +164,22 @@ class markdownAlt{
 
 	static to_HTML__set_h3(text){
 	    return text.replace(/### (.+?)(\n\n)/g, function(match, p1, p2, offset, str_full){   
-	      return "<h3>"+p1+"</h3>"+p2;
+
+		    if(markdownAlt.lock__ESCAPE){
+		    	p1 = markdownAlt.escapeHtml(p1);
+		    }	    	
+
+	      	return "<h3>"+p1+"</h3>"+p2;
 	    });
 	}
 
 	static to_HTML__set_h2(text){
-	    return text.replace(/## (.+?)(\n\n)/g, function(match, p1, p2, offset, str_full){   
+	    return text.replace(/## (.+?)(\n\n)/g, function(match, p1, p2, offset, str_full){ 
+
+		    if(markdownAlt.lock__ESCAPE){
+		    	p1 = markdownAlt.escapeHtml(p1);
+		    }	
+
 	      return "<h2>"+p1+"</h2>"+p2;
 	    });
 	}
@@ -179,8 +195,19 @@ class markdownAlt{
 	*/  
 
 	static to_HTML__IMG(text){
-	    return text.replace(/\n!\[(.*?)\]\((.*?) "(.*?)"(?:\[source=(.*?)?\])\)\n/g, function(match, p1, p2, p3, p4, offset, str_full){
-	        
+	    return text.replace(/(?:\n|^)!\[(.*?)\]\((.+?) "(.*?)"(?:\[source=(.*?)?\])\)\n/g, function(match, p1, p2, p3, p4, offset, str_full){
+
+			    if(markdownAlt.lock__ESCAPE){
+			    	p1 = markdownAlt.escapeHtml(p1);
+			    	p1 = markdownAlt.safeAttrHtml(p1);
+
+			    	p2 = markdownAlt.safeAttrHtml(p2);
+
+			    	p3 = markdownAlt.escapeHtml(p3);
+
+			    	p4 = markdownAlt.safeAttrHtml(p4);
+			    }	 
+
 	        return markdownAlt.layout__IMG(p1, p2, p3, p4);
 	    });
 	} 
@@ -213,8 +240,12 @@ class markdownAlt{
 	*/ 
 
 	static to_HTML__GFYCAT(text){
-	    return text.replace(/\n!\[\*\*GFYCAT\*\*\]\((.*?) "\[autoplay=(true|false)\]\[quality=(HD|SD)\]\[speed=([0-9]\.[0-9]+?)\]\[controls=(true|false)\]"\)\n/g, function(match, p1, p2, p3, p4, p5, offset, str_full){
-	        
+	    return text.replace(/(?:\n|^)!\[\*\*GFYCAT\*\*\]\((.+?) "\[autoplay=(true|false)\]\[quality=(HD|SD)\]\[speed=([0-9]\.[0-9]+?)\]\[controls=(true|false)\]"\)\n/g, function(match, p1, p2, p3, p4, p5, offset, str_full){
+			
+		    if(markdownAlt.lock__ESCAPE){
+		    	p1 = markdownAlt.safeAttrHtml(p1);
+		    }
+
 	        return markdownAlt.layout__GFYCAT(p1, p2, p3, p4, p5);
 	    });
 	} 
@@ -248,16 +279,23 @@ class markdownAlt{
 	*/ 
 
 	static to_HTML__YOUTUBE(text){
-	    return text.replace(/\n!\[\*\*YOUTUBE\*\*\]\((.*?)\)\n/g, function(match, p1, offset, str_full){
-	        
+	    return text.replace(/(?:\n|^)!\[\*\*YOUTUBE\*\*\]\((.+?)\)\n/g, function(match, p1, offset, str_full){
+
+		    if(markdownAlt.lock__ESCAPE){
+		    	p1 = markdownAlt.safeAttrHtml(p1);
+		    }
+
+            p1 = p1.replace(/^(.+?youtube\.com\/)watch\?v=([^&]*).*/g, '$1embed/$2');
+
 	        return markdownAlt.layout__YOUTUBE(p1);
 	    });
 	} 
 
 	static layout__YOUTUBE(href){
-	    return '<div><iframe src="'+href+'" frameborder="0" scrolling="no" width="100%" height="100%" allowfullscreen></iframe></div>';
+	    return '<div style="position: relative; padding-bottom: 56.25%;"><iframe style="position: absolute; top: 0; left: 0;" src="'+href+'" frameborder="0" scrolling="no" width="100%" height="100%" allowfullscreen></iframe></div>';
 	}
-
+           
+          
 	/*
 	//Example extends function
 
@@ -278,8 +316,12 @@ class markdownAlt{
 	*/ 
 
 	static to_HTML__VIMEO(text){
-	    return text.replace(/\n!\[\*\*VIMEO\*\*\]\((.*?)\)\n/g, function(match, p1, offset, str_full){
-	        
+	    return text.replace(/(?:\n|^)!\[\*\*VIMEO\*\*\]\((.+?)\)\n/g, function(match, p1, offset, str_full){
+
+		    if(markdownAlt.lock__ESCAPE){
+		    	p1 = markdownAlt.safeAttrHtml(p1);
+		    }
+
 	        return markdownAlt.layout__VIMEO(p1);
 	    });
 	} 
@@ -315,6 +357,12 @@ class markdownAlt{
           return markdownAlt.entityMap[s];
         });
     }
+
+
+    static safeAttrHtml(string) {
+        return string.replace(/["']/g, '');
+    }
+
 }
 
 
