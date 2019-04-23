@@ -1,12 +1,12 @@
 {
   "name": "markdown-alt",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Markdown alternative version",
   "keywords": [
-    "markdown-alt",   
+    "markdown-alt"   
   ],
-  "homepage": "drgdrg",
-  "bugs": "drgdrg",
+  "homepage": "https://github.com/semiromid/markdown-alt",
+  "bugs": "https://github.com/semiromid/markdown-alt/issues",
   "license": "MIT",
   "author": {
     "name": "Yrii Svetlov",
@@ -20,7 +20,7 @@
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "drgdrg"
+    "url": "https://github.com/semiromid/markdown-alt"
   }
 
 }
