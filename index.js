@@ -157,7 +157,7 @@ class markdownAlt{
 	    let h2 = "(## .+)",
 	        h3 = "(### .+)",
 	        hr = "(____+)",
-	        quote = "(< [\\s\\S]+)",
+	        quote = "(> [\\s\\S]+)",
 	        img = ' *!\\[.*?\\]\\(.+? ".*?"(\\[source=.+?\\])?\\)',
 	        video_GFICAT = ' *!\\|GFYCAT\\|\\(.+? "\\[autoplay=(true|false)\\]\\[quality=(HD|SD)\\]\\[speed=[0-9]\\.[0-9]+?\\]\\[controls=(true|false)\\]"\\)',
 	        video_YOUTUBE = ' *!\\[\\*\\*YOUTUBE\\*\\*\\]\\(.+?\\)',
@@ -203,20 +203,20 @@ class markdownAlt{
 	// QUOTES
 	//------------------------------
 	/*
-	    < text
+	    > text
 	    text text text
-	    << text text text
+	    >> text text text
 	    text text text text
 	*/  
 	static to_HTML__set_quote(text){
-	    return text.replace(/((?:\n\n+)*)< ([\s\S]+?)(\n\n+|$)/g, function(match, p1, p2, p3, offset, str_full){
+	    return text.replace(/(\n\n+)> ([\s\S]+?)(\n\n+|$)/g, function(match, p1, p2, p3, offset, str_full){
 
-	        return markdownAlt.getQuotes('<', p2);
+	        return p1+markdownAlt.getQuotes('>', p2)+p3;
 	    });
 	}
 
 	static getQuotes(arrow, text){
-	  arrow = arrow+'<';
+	  arrow = arrow+'>';
 
 	  const reg_text = new RegExp("\n"+arrow+" +","gi");
 	  const result = (reg_text).test(text);
@@ -230,7 +230,7 @@ class markdownAlt{
 	  }
 
 	  const reg = new RegExp("([\\s\\S]+)","gi");
-	  if(arrow === '<<'){
+	  if(arrow === '>>'){
 	      return text.replace(reg, markdownAlt.layout__QUOTES('$1', 'normal'));
 	  }else{
 	      return text.replace(reg, markdownAlt.layout__QUOTES('$1', 'end'));
