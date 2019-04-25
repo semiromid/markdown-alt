@@ -203,10 +203,10 @@ class markdownAlt{
 	// QUOTES
 	//------------------------------
 	/*
-	    > text
-	    text text text
-	    >> text text text
-	    text text text text
+> text
+text text text
+>> text text text
+text text text text
 	*/  
 	static to_HTML__set_quote(text){
 	    return text.replace(/(\n\n+)> ([\s\S]+?)(\n\n+|$)/g, function(match, p1, p2, p3, offset, str_full){
@@ -222,31 +222,33 @@ class markdownAlt{
 	  const result = (reg_text).test(text);
 
 	  if(result === true){
-	      const reg = new RegExp("(?:([\\s\\S]+?)(?:(\n)"+arrow+" +?([\\s\\S]+)))","gi");
+	      const reg = new RegExp("(?:([\\s\\S]+?)(?:\n"+arrow+" +?([\\s\\S]+)))","gi");
 
-	      return text.replace(reg, function(match, p1, p2, p3){
-	          return markdownAlt.layout__QUOTES(p1, 'start')+markdownAlt.getQuotes(arrow, p2+p3);
+	      return text.replace(reg, function(match, p1, p2){
+	          return markdownAlt.layout__QUOTES(markdownAlt.getHTML(p1), 'start')+markdownAlt.getQuotes(arrow, p2)+markdownAlt.layout__QUOTES('', 'end');
+	          
 	      });
 	  }
 
 	  const reg = new RegExp("([\\s\\S]+)","gi");
 	  if(arrow === '>>'){
-	      return text.replace(reg, markdownAlt.layout__QUOTES('$1', 'normal'));
+	  	  
+	  	    return text.replace(reg, markdownAlt.layout__QUOTES(markdownAlt.getHTML('$1'), 'normal'));
 	  }else{
-	      return text.replace(reg, markdownAlt.layout__QUOTES('$1', 'end'));
+	  	    return text.replace(reg, markdownAlt.layout__QUOTES(markdownAlt.getHTML('$1'), 'normal'));
 	  }
 	}
 
 
 	static layout__QUOTES(text, position){
 		if(position === 'start'){
-			return '<blockquote><p>'+text+'</p>';
-		
+			return '<blockquote>'+text;
+
 		}else if(position === 'end'){
-			return '<blockquote><p>'+text+'</p></blockquote></blockquote>';
+			return text+'</blockquote>';
 		
 		}else if(position === 'normal'){
-			return '<blockquote><p>'+text+'</p></blockquote>';
+			return '<blockquote>'+text+'</blockquote>';
 		}
 	}
 
@@ -255,13 +257,13 @@ class markdownAlt{
 
 		markdownAlt.layout__QUOTES = function(text, position){
 			if(position === 'start'){
-				return '<blockquote><p>'+text+'</p>';
-			
+				return '<blockquote>'+text;
+
 			}else if(position === 'end'){
-				return '<blockquote><p>'+text+'</p></blockquote></blockquote>';
+				return text+'</blockquote>';
 			
 			}else if(position === 'normal'){
-				return '<blockquote><p>'+text+'</p></blockquote>';
+				return '<blockquote>'+text+'</blockquote>';
 			}
 		}
 	*/
