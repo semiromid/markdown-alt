@@ -10,6 +10,7 @@ class markdownAlt{
 		markdownAlt.lock__GFYCAT = true;
 	*/
 	static lock__P = true;
+	static lock__QUOTE = true;
 	static lock__PARAGRAPH = true;
 	static lock__HR = true;
 	static lock__BR = true;
@@ -30,6 +31,10 @@ class markdownAlt{
 
 	    if(this.lock__P){
 	    	html = this.to_HTML__set_p(html);	    	
+	    }	
+
+	    if(this.lock__QUOTE){
+	    	html = this.to_HTML__set_quote(html);	    	
 	    }	
 
 	    if(this.lock__PARAGRAPH){
@@ -143,17 +148,23 @@ class markdownAlt{
 
 
 
+
+
+
+
+
 	static to_HTML__testTAG(text){
 	    let h2 = "(## .+)",
 	        h3 = "(### .+)",
 	        hr = "(____+)",
+	        quote = "(< [\\s\\S]+)",
 	        img = ' *!\\[.*?\\]\\(.+? ".*?"(\\[source=.+?\\])?\\)',
 	        video_GFICAT = ' *!\\|GFYCAT\\|\\(.+? "\\[autoplay=(true|false)\\]\\[quality=(HD|SD)\\]\\[speed=[0-9]\\.[0-9]+?\\]\\[controls=(true|false)\\]"\\)',
 	        video_YOUTUBE = ' *!\\[\\*\\*YOUTUBE\\*\\*\\]\\(.+?\\)',
 	        video_VIMEO = ' *!\\[\\*\\*VIMEO\\*\\*\\]\\(.+?\\)',
 
 
-	        regExp = new RegExp("^(?:"+h2+"|"+h3+"|"+hr+"|"+img+"|"+video_GFICAT+"|"+video_YOUTUBE+"|"+video_VIMEO+")$","gi");
+	        regExp = new RegExp("^(?:"+h2+"|"+h3+"|"+hr+"|"+quote+"|"+img+"|"+video_GFICAT+"|"+video_YOUTUBE+"|"+video_VIMEO+")$","gi");
 
 	    return regExp.test(text);
 	}
@@ -184,6 +195,78 @@ class markdownAlt{
 	    });
 	}
 
+
+
+
+
+	//------------------------------
+	// QUOTES
+	//------------------------------
+	/*
+	    < text
+	    text text text
+	    << text text text
+	    text text text text
+	*/  
+	static to_HTML__set_quote(text){
+	    return text.replace(/((?:\n\n+)*)< ([\s\S]+?)(\n\n+|$)/g, function(match, p1, p2, p3, offset, str_full){
+
+	        return markdownAlt.getQuotes('<', p2);
+	    });
+	}
+
+	static getQuotes(arrow, text){
+	  arrow = arrow+'<';
+
+	  const reg_text = new RegExp("\n"+arrow+" +","gi");
+	  const result = (reg_text).test(text);
+
+	  if(result === true){
+	      const reg = new RegExp("(?:([\\s\\S]+?)(?:(\n)"+arrow+" +?([\\s\\S]+)))","gi");
+
+	      return text.replace(reg, function(match, p1, p2, p3){
+	          return markdownAlt.layout__QUOTES(p1, 'start')+markdownAlt.getQuotes(arrow, p2+p3);
+	      });
+	  }
+
+	  const reg = new RegExp("([\\s\\S]+)","gi");
+	  if(arrow === '<<'){
+	      return text.replace(reg, markdownAlt.layout__QUOTES('$1', 'normal'));
+	  }else{
+	      return text.replace(reg, markdownAlt.layout__QUOTES('$1', 'end'));
+	  }
+	}
+
+
+	static layout__QUOTES(text, position){
+		if(position === 'start'){
+			return '<blockquote><p>'+text+'</p>';
+		
+		}else if(position === 'end'){
+			return '<blockquote><p>'+text+'</p></blockquote></blockquote>';
+		
+		}else if(position === 'normal'){
+			return '<blockquote><p>'+text+'</p></blockquote>';
+		}
+	}
+
+	/*
+	//Example extends function
+
+		markdownAlt.layout__QUOTES = function(text, position){
+			if(position === 'start'){
+				return '<blockquote><p>'+text+'</p>';
+			
+			}else if(position === 'end'){
+				return '<blockquote><p>'+text+'</p></blockquote></blockquote>';
+			
+			}else if(position === 'normal'){
+				return '<blockquote><p>'+text+'</p></blockquote>';
+			}
+		}
+	*/
+	//------------------------------
+	//------------------------------
 
 
 
