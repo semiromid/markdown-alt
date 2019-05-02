@@ -11,9 +11,13 @@ class markdownAlt{
 	*/
 	static lock__P = true;
 	static lock__QUOTE = true;
+	static lock__LIST_UL = true;
+	static lock__LIST_OL = true;	
 	static lock__PARAGRAPH = true;
 	static lock__HR = true;
 	static lock__BR = true;
+	static lock__TEXT_BOLD = true;
+	static lock__TEXT_ITALIC = true;
 	static lock__H2 = true;
 	static lock__H3 = true;
 	static lock__A = true;
@@ -22,72 +26,171 @@ class markdownAlt{
 	static lock__YOUTUBE = true;
 	static lock__VIMEO = true;
 
+
 	static lock__ESCAPE = true;
 	
 	
 
 
-	static getHTML(html){
 
+
+
+	static getHTML__Timer;
+
+	static async_getHTML(html, callback){
+		if(this.getHTML__Timer !== undefined){
+			clearTimeout(this.getHTML__Timer);
+		}
+
+		this.getHTML__Timer = setTimeout(function(){
+			callback(markdownAlt.getHTML(html));
+		}, 1000);
+	}
+
+
+
+	static getHTML(html){
 	    if(this.lock__P){
 	    	html = this.to_HTML__set_p(html);	    	
-	    }	
-
-	    if(this.lock__QUOTE){
-	    	html = this.to_HTML__set_quote(html);	    	
-	    }	
-
-	    if(this.lock__PARAGRAPH){
-	    	html = this.to_HTML__set_paragraph(html);
-	    }	
-
-	    if(this.lock__HR){
-	    	html = this.to_HTML__set_hr(html);
-	    }	
-
-	    if(this.lock__BR){
-	    	html = this.to_HTML__set_br(html);
-	    }	
-
-	    if(this.lock__H2){
-	    	html = this.to_HTML__set_h2(html);
-	    }	
-
-	    if(this.lock__H3){
-	    	html = this.to_HTML__set_h3(html);
-	    }	
-
-	    if(this.lock__A){
-	    	html = this.to_HTML__set_a(html);
-	    }
-
-	    if(this.lock__IMG){
-	    	html = this.to_HTML__IMG(html);
-	    }
-
-	    if(this.lock__GFYCAT){
-	    	html = this.to_HTML__GFYCAT(html);
-	    }
-
-	    if(this.lock__YOUTUBE){
-	    	html = this.to_HTML__YOUTUBE(html);
-	    }
-
-	    if(this.lock__VIMEO){
-	    	html = this.to_HTML__VIMEO(html);
-	    }	   
-
+	    }    	
 	    return html;
 	}
 
 
-	static to_HTML__set_br(text){
-	    return text.replace(/(.*)((?<!\n)\n)(.+)/g, function(match, p1, p2, p3, offset, str_full){
-	        p2 = "<br>";
-	        return p1+p2+p3;
-	    });
-	}          
 
+
+
+	static html = '';
+
+	static to_HTML__set_p(text){
+	    return text.replace(/((?:\n\n+)*)([\s\S]+?)(\n\n+|$)/g, function(match, p1, p2, p3, offset, str_full){
+
+	    	markdownAlt.html = markdownAlt.to_HTML__otherTAGs(p2);
+
+	        if(!markdownAlt.html){
+			    if(markdownAlt.lock__ESCAPE){
+			    	p2 = markdownAlt.escapeHtml(p2);
+			    }	  
+
+	            p2 = "<p>"+p2+"</p>";
+
+	            //-----------------------------
+			    // PARAGRAPH
+			    if(markdownAlt.lock__PARAGRAPH){
+			    	p2 = markdownAlt.to_HTML__set_paragraph(p2);
+			    }
+
+	            // BR
+			    if(markdownAlt.lock__BR){
+			    	p2 = markdownAlt.to_HTML__set_br(p2);
+			    }	
+
+			    // A
+			    if(markdownAlt.lock__A){
+			    	p2 = markdownAlt.to_HTML__set_a(p2);
+			    }	
+
+			    // TEXT BOLD
+			    if(markdownAlt.lock__TEXT_BOLD){
+			    	p2 = markdownAlt.to_HTML__set_text_bold(p2);
+			    }
+
+			    // TEXT ITALIC
+			    if(markdownAlt.lock__TEXT_ITALIC){
+			    	p2 = markdownAlt.to_HTML__set_text_italic(p2);
+			    }
+	            //-----------------------------			    
+	        }else{
+	        	return p1+markdownAlt.html+p3;
+	        }
+	        
+	     	return p1+p2+p3;
+	    });
+	}
+
+
+
+
+
+
+
+
+
+	static to_HTML__otherTAGs(text){
+	    this.html = '';
+
+
+		if(this.lock__H2){
+			if(/^## .+/.test(text)){
+		    	return this.to_HTML__set_h2(text);
+		    }			
+		}
+
+
+		if(this.lock__H3){
+			if(/^### .+/.test(text)){
+		    	return this.to_HTML__set_h3(text);
+		    }			
+		}
+
+
+		if(this.lock__HR){
+			if(/^____+/.test(text)){
+		    	return this.to_HTML__set_hr(text);
+		    }			
+		}
+
+		
+		if(this.lock__QUOTE){
+			if(/^> [\s\S]+/.test(text)){		
+		    	return this.to_HTML__set_quote(text);
+		    }	
+		}
+		
+
+		if(this.lock__LIST_UL){
+			if(/^- [\s\S]+/.test(text)){
+		    	return this.getList__ul_li(text);
+		    }
+		}
+
+
+		if(this.lock__LIST_OL){
+			if(/[0-9]+\. [\s\S]+/.test(text)){
+		    	return this.getList__ol_li(text);
+		    }
+		}
+
+
+
+		if(this.lock__IMG){
+			if(/^!\[.*?\]\(.+? ".*?"(\[source=.+?\])?\)/.test(text)){
+		    	return this.to_HTML__IMG(text);
+		    }			
+		}
+
+
+		if(this.lock__GFYCAT){
+			if(/^!\|GFYCAT\|\(.+? "\[autoplay=(true|false)\]\[quality=(HD|SD)\]\[speed=[0-9]\.[0-9]+?\]\[controls=(true|false)\]"\)/.test(text)){
+		    	return this.to_HTML__GFYCAT(text);
+		    }			
+		}
+
+		if(this.lock__YOUTUBE){
+			if(/^!\|YOUTUBE\|\(.+?\)/.test(text)){
+		    	return this.to_HTML__YOUTUBE(text);
+		    }			
+		}
+
+
+	    if(this.lock__VIMEO){
+			if(/^!\|VIMEO\|\(.+?\)/.test(text)){
+		    	return this.to_HTML__VIMEO(text);
+		    }	    	
+	    }	  
+
+		return false;
+	}
 
 
 
@@ -105,97 +208,94 @@ class markdownAlt{
 	} 
 
 
-
+	/*
+	    ![text](https://www.youtube.com/watch?v=IGcKgTih__4)
+	*/	
 	static to_HTML__set_a(text){
-	    return text.replace(/([\s\S]*?[^!])\[(.+?)\]\(([^\s]+?)\)([\s\S]*?)/g, function(match, p1, p2, p3, p4, offset, str_full){
+	    return text.replace(/!\[(.+?)\]\(([^\s]+?)\)/g, function(match, p1, p2, offset, str_full){
 	      
 		    if(markdownAlt.lock__ESCAPE){
-		    	p2 = markdownAlt.escapeHtml(p2);
+		    	p1 = markdownAlt.escapeHtml(p1);
 		    	
-		    	p3 = markdownAlt.safeAttrHtml(p3);
+		    	p2 = markdownAlt.reescapeHtml(p2);
+		    	p2 = markdownAlt.safeAttrHtml(p2);
 		    }
 
-	      	return p1+'<a rel="noopener noreferrer nofollow" target="_blank" href="'+p3+'">'+p2+'</a>'+p4;
+	      	return '<a rel="noopener noreferrer nofollow" target="_blank" href="'+p2+'">'+p1+'</a>';
 	    });
 	}
 
 
+
+	static to_HTML__set_br(text){
+	    return text.replace(/\n/g, function(match, p1, offset, str_full){
+	        return "<br>";
+	    });
+	}  
+
+	/*
+	   Text bold
+	   **text**
+	*/
+	static to_HTML__set_text_bold(text){
+	    return text.replace(/\*\*([\s\S]+?)\*\*/g, function(match, p1, offset, str_full){
+	        return "<strong>"+p1+"</strong>";
+	    });
+	} 
+
+
+
+	/*
+	   Text italic
+	   *text*
+	*/
+	static to_HTML__set_text_italic(text){
+	    return text.replace(/\*([\s\S]+?)\*/g, function(match, p1, offset, str_full){
+	        return "<em>"+p1+"</em>";
+	    });
+	} 
+
+
+
+
+
+
+
+
+
+	/*
+	    ____
+	*/	
 	static to_HTML__set_hr(text){
-	    return text.replace(/([\s\S]*?\n\n)(____+?)(\n\n(?!____+))/g, function(match, p1, p2, p3, offset, str_full){
-	      	return p1+'<hr>'+p3;
+	    return text.replace(/____+?/g, function(match, offset, str_full){
+	      	return '<hr>';
 	    });
 	}   
 
 
 
-
-	static to_HTML__set_p(text){
-	    return text.replace(/((?:\n\n+)*)([\s\S]+?)(\n\n+|$)/g, function(match, p1, p2, p3, offset, str_full){
-
-	        if(!markdownAlt.to_HTML__testTAG(p2)){
-
-			    if(markdownAlt.lock__ESCAPE){
-			    	p2 = markdownAlt.escapeHtml(p2);
-			    }	  
-			          	
-	            p2 = "<p>"+p2+"</p>";
-	        }
-
-	      return p1+p2+p3;
-	    });
-	}
-
-
-
-
-
-
-
-
-
-	static to_HTML__testTAG(text){
-	    let h2 = "(## .+)",
-	        h3 = "(### .+)",
-	        hr = "(____+)",
-	        quote = "(> [\\s\\S]+)",
-	        img = ' *!\\[.*?\\]\\(.+? ".*?"(\\[source=.+?\\])?\\)',
-	        video_GFICAT = ' *!\\|GFYCAT\\|\\(.+? "\\[autoplay=(true|false)\\]\\[quality=(HD|SD)\\]\\[speed=[0-9]\\.[0-9]+?\\]\\[controls=(true|false)\\]"\\)',
-	        video_YOUTUBE = ' *!\\[\\*\\*YOUTUBE\\*\\*\\]\\(.+?\\)',
-	        video_VIMEO = ' *!\\[\\*\\*VIMEO\\*\\*\\]\\(.+?\\)',
-
-
-	        regExp = new RegExp("^(?:"+h2+"|"+h3+"|"+hr+"|"+quote+"|"+img+"|"+video_GFICAT+"|"+video_YOUTUBE+"|"+video_VIMEO+")$","gi");
-
-	    return regExp.test(text);
-	}
-
-
-
-
-
-	static to_HTML__set_h3(text){
-	    return text.replace(/### (.+?)(\n\n)/g, function(match, p1, p2, offset, str_full){   
-
-		    if(markdownAlt.lock__ESCAPE){
-		    	p1 = markdownAlt.escapeHtml(p1);
-		    }	    	
-
-	      	return "<h3>"+p1+"</h3>"+p2;
-	    });
-	}
-
 	static to_HTML__set_h2(text){
-	    return text.replace(/## (.+?)(\n\n)/g, function(match, p1, p2, offset, str_full){ 
+	    return text.replace(/## (.+)/g, function(match, p1, offset, str_full){ 
 
 		    if(markdownAlt.lock__ESCAPE){
 		    	p1 = markdownAlt.escapeHtml(p1);
 		    }	
 
-	      return "<h2>"+p1+"</h2>"+p2;
+	      return "<h2>"+p1+"</h2>";
 	    });
 	}
 
 
+	static to_HTML__set_h3(text){
+	    return text.replace(/### (.+)/g, function(match, p1, offset, str_full){   
+
+		    if(markdownAlt.lock__ESCAPE){
+		    	p1 = markdownAlt.escapeHtml(p1);
+		    }	    	
+
+	      	return "<h3>"+p1+"</h3>";
+	    });
+	}
 
 
 
@@ -209,62 +309,58 @@ text text text
 text text text text
 	*/  
 	static to_HTML__set_quote(text){
-	    return text.replace(/(\n\n+)> ([\s\S]+?)(\n\n+|$)/g, function(match, p1, p2, p3, offset, str_full){
-
-	        return p1+markdownAlt.getQuotes('>', p2)+p3;
-	    });
-	}
-
-	static getQuotes(arrow, text){
-	  arrow = arrow+'>';
-
-	  const reg_text = new RegExp("\n"+arrow+" +","gi");
-	  const result = (reg_text).test(text);
-
-	  if(result === true){
-	      const reg = new RegExp("(?:([\\s\\S]+?)(?:\n"+arrow+" +?([\\s\\S]+)))","gi");
-
-	      return text.replace(reg, function(match, p1, p2){
-	          return markdownAlt.layout__QUOTES(markdownAlt.getHTML(p1), 'start')+markdownAlt.getQuotes(arrow, p2)+markdownAlt.layout__QUOTES('', 'end');
-	          
-	      });
-	  }
-
-	  const reg = new RegExp("([\\s\\S]+)","gi");
-	  if(arrow === '>>'){
-	  	  
-	  	    return text.replace(reg, markdownAlt.layout__QUOTES(markdownAlt.getHTML('$1'), 'normal'));
-	  }else{
-	  	    return text.replace(reg, markdownAlt.layout__QUOTES(markdownAlt.getHTML('$1'), 'normal'));
-	  }
+	    return markdownAlt.getQuotes(text);
 	}
 
 
-	static layout__QUOTES(text, position){
-		if(position === 'start'){
-			return '<blockquote>'+text;
+	static getQuotes(text){
 
-		}else if(position === 'end'){
-			return text+'</blockquote>';
-		
-		}else if(position === 'normal'){
-			return '<blockquote>'+text+'</blockquote>';
+		let arrayQuotes = [];
+		let length = 0;
+
+		function getArray(text){
+			text = text.replace(/(\n>+)/g, '\n$1');
+			return text.replace(/(>+ )([\s\S]+?)(\n\n|$)/g, function(match, p1, p2){
+				if(length < p1.length){
+					length = p1.length;
+					return arrayQuotes.push(p2);
+				}
+
+		  		return arrayQuotes[arrayQuotes.length - 1] = arrayQuotes[arrayQuotes.length - 1]+' '+p2;
+		    });
 		}
+
+		getArray("\n"+text);
+		//console.log(arrayQuotes);
+
+
+		let p2 = '';
+		function getHTML(arr, i){
+
+		    if(markdownAlt.lock__ESCAPE){
+		    	p2 = "<p>"+markdownAlt.escapeHtml(arr[i])+"</p>";
+		    }else{
+		    	p2 = "<p>"+arr[i]+"</p>";
+		    }
+
+			if(arr[i + 1] !== undefined){
+				return markdownAlt.layout__QUOTES(p2+getHTML(arr, i + 1));
+			}
+
+			return markdownAlt.layout__QUOTES(p2);
+		}
+
+		return this.to_HTML__set_br(getHTML(arrayQuotes, 0));
+	}
+
+	static layout__QUOTES(text){
+		return '<blockquote>'+text+'</blockquote>';
 	}
 
 	/*
 	//Example extends function
-
-		markdownAlt.layout__QUOTES = function(text, position){
-			if(position === 'start'){
-				return '<blockquote>'+text;
-
-			}else if(position === 'end'){
-				return text+'</blockquote>';
-			
-			}else if(position === 'normal'){
-				return '<blockquote>'+text+'</blockquote>';
-			}
+		static layout__QUOTES(text){
+			return '<blockquote>'+text+'</blockquote>';
 		}
 	*/
 	//------------------------------
@@ -272,15 +368,282 @@ text text text text
 
 
 
+
+
+
+	//------------------------------
+	// LIST (<ul>)
+	//------------------------------
+	/*
+- text text text
+- text text text
+  - text text text
+    - text text text
+      - text text text
+  - text text text   
+- text text text
+- text text text
+	*/ 
+
+	static getList__ul_li(text){
+
+		var array = [];
+
+		function getArray(text, array){
+			return text.replace(/( *- [\s\S]+?)(\n|$)/g, function(match, p1, p2){
+		  		return array.push(p1);
+		    });
+		}
+		getArray(text, array);
+		//console.log(array);
+
+		let i = 0;
+
+		function getHTML(){
+			const 	ul_1 = "<ul>", 
+					ul_2 = "</ul>";
+			let str = "", 
+				level = '', 
+				r;
+
+			for (i; i <= array.length - 1; i++) {
+
+				if(array[i+1] !== undefined){
+
+					if(level === ''){
+						level = compare_space(array[i]).length;
+					}
+
+					r = compare_space(array[i+1]).length;
+
+					//------------------------
+					// Compare spaces
+					//------------------------
+					if(level === r){ // Level is match
+						str = str+"<li>"+getText(array[i])+"</li>";
+
+					}else if(level < r){ // Level ->
+						str = str+"<li>"+getText(array[i]);
+						i = i + 1;
+						str = str+getHTML()+"</li>";
+
+						if(array[i+1] == undefined || compare_space(array[i+1]).length !== level){
+							return ul_1+str+ul_2;
+						}
+					}else{ // Level <-
+
+						return ul_1+str+"<li>"+getText(array[i])+"</li>"+ul_2;
+					}
+					//------------------------
+				}else{ // END
+					str = ul_1+str+"<li>"+getText(array[i])+"</li>"+ul_2;
+					return str;
+				}
+			}
+
+			return false;		
+		}
+
+
+		function getText(text){
+
+		    if(markdownAlt.lock__ESCAPE){
+		    	text = markdownAlt.escapeHtml(text);
+		    }
+
+		    text = preparation_text(text);
+
+			return markdownAlt.layout__UL_LI(text);
+		}
+
+
+		function compare_space(text){
+			if(text === undefined){
+				return '';
+			}
+			return text.replace(/^( *)- [\s\S]+?(?:\n|$)/g, '$1');
+		}
+
+		function preparation_text(text){
+			return text.replace(/^ *- ([\s\S]+)/g, '$1');
+		}
+
+		return markdownAlt.layout__UL(getHTML());
+	}
+
+
+	static layout__UL_LI(text){
+
+		return text;
+	}
+
+	static layout__UL(text){
+
+		return text;
+	}
+
+	/*
+	//Example extends function:
+
+		// It return entire list UL
+		markdownAlt.layout__UL = function(text){
+			return text;
+		}
+
+		// It return text between tag <li>
+		markdownAlt.layout__UL_LI = function(text){
+			return text;
+		}
+	*/
+	//------------------------------
+	//------------------------------
+
+
+
+
+
+
+
+	//------------------------------
+	// LIST (<ol>)
+	//------------------------------
+	/*
+1. text text text
+2. text text text
+  1. text text text
+    1. text text text
+      1. text text text
+  2. text text text   
+3. text text text
+4. text text text
+	*/ 
+
+	static getList__ol_li(text){
+
+		var array = [];
+
+		function getArray(text, array){
+			return text.replace(/( *[0-9]+\. [\s\S]+?)(\n|$)/g, function(match, p1, p2){
+		  		return array.push(p1);
+		    });
+		}
+		getArray(text, array);
+		//console.log(array);
+
+		let i = 0;
+
+		function getHTML(){
+			const 	ul_1 = "<ol>", 
+					ul_2 = "</ol>";
+			let str = "", 
+				level = '', 
+				r;
+
+			for (i; i <= array.length - 1; i++) {
+
+				if(array[i+1] !== undefined){
+
+					if(level === ''){
+						level = compare_space(array[i]).length;
+					}
+
+					r = compare_space(array[i+1]).length;
+
+					//------------------------
+					// Compare spaces
+					//------------------------
+					if(level === r){ // Level is match
+						str = str+"<li>"+getText(array[i])+"</li>";
+
+					}else if(level < r){ // Level ->
+						str = str+"<li>"+getText(array[i]);
+						i = i + 1;
+						str = str+getHTML()+"</li>";
+
+						if(array[i+1] == undefined || compare_space(array[i+1]).length !== level){
+							return ul_1+str+ul_2;
+						}
+					}else{ // Level <-
+
+						return ul_1+str+"<li>"+getText(array[i])+"</li>"+ul_2;
+					}
+					//------------------------
+				}else{ // END
+					str = ul_1+str+"<li>"+getText(array[i])+"</li>"+ul_2;
+					return str;
+				}
+			}
+
+			return false;		
+		}
+
+
+		function getText(text){
+
+		    if(markdownAlt.lock__ESCAPE){
+		    	text = markdownAlt.escapeHtml(text);
+		    }
+
+		    text = preparation_text(text);
+
+			return markdownAlt.layout__OL_LI(text);
+		}
+
+
+		function compare_space(text){
+			if(text === undefined){
+				return '';
+			}
+			return text.replace(/^( *)[0-9]+\. [\s\S]+?(?:\n|$)/g, '$1');
+		}
+
+		function preparation_text(text){
+			return text.replace(/^ *[0-9]+\. ([\s\S]+)/g, '$1');
+		}
+
+		return markdownAlt.layout__OL(getHTML());
+	}
+
+
+	static layout__OL_LI(text){
+
+		return text;
+	}
+
+	static layout__OL(text){
+
+		return text;
+	}
+
+	/*
+	//Example extends function:
+
+		// It return entire list UL
+		markdownAlt.layout__UL = function(text){
+			return text;
+		}
+
+		// It return text between tag <li>
+		markdownAlt.layout__UL_LI = function(text){
+			return text;
+		}
+	*/
+	//------------------------------
+	//------------------------------
+
+
+
+
+
 	//------------------------------
 	// IMG 
 	//------------------------------
 	/*
-	    ![Alt](https://i.imgur.com/zk48nju.jpg "Чистоте."[source=https://imgur.com/account/favorites/uHGMO17])
+![Alt](https://i.imgur.com/zk48nju.jpg "Чистоте."[source=https://imgur.com/account/favorites/uHGMO17])
 	*/  
 
 	static to_HTML__IMG(text){
-	    return text.replace(/(?:\n|^)!\[(.*?)\]\((.+?) "(.*?)"(?:\[source=(.+?)\])?\)\n/g, function(match, p1, p2, p3, p4, offset, str_full){
+	    return text.replace(/!\[(.*?)\]\((.+?) "(.*?)"(?:\[source=(.+?)\])?\)/g, function(match, p1, p2, p3, p4, offset, str_full){
 
 			    if(markdownAlt.lock__ESCAPE){
 			    	p1 = markdownAlt.escapeHtml(p1);
@@ -325,7 +688,7 @@ text text text text
 	*/ 
 
 	static to_HTML__GFYCAT(text){
-	    return text.replace(/(?:\n|^)!\|GFYCAT\|\((.+?) "\[autoplay=(true|false)\]\[quality=(HD|SD)\]\[speed=([0-9]\.[0-9]+?)\]\[controls=(true|false)\]"\)\n/g, function(match, p1, p2, p3, p4, p5, offset, str_full){
+	    return text.replace(/!\|GFYCAT\|\((.+?) "\[autoplay=(true|false)\]\[quality=(HD|SD)\]\[speed=([0-9]\.[0-9]+?)\]\[controls=(true|false)\]"\)/g, function(match, p1, p2, p3, p4, p5, offset, str_full){
 
 		    if(markdownAlt.lock__ESCAPE){
 		    	p1 = markdownAlt.safeAttrHtml(p1);
@@ -367,11 +730,11 @@ text text text text
 	// YOUTUBE
 	//------------------------------
 	/*
-	    ![**YOUTUBE**](https://www.youtube.com/watch?v=IGcKgTih__4)
+	    !|YOUTUBE|(https://www.youtube.com/watch?v=IGcKgTih__4)
 	*/ 
 
 	static to_HTML__YOUTUBE(text){
-	    return text.replace(/(?:\n|^)!\[\*\*YOUTUBE\*\*\]\((.+?)\)\n/g, function(match, p1, offset, str_full){
+	    return text.replace(/!\|YOUTUBE\|\((.+?)\)/g, function(match, p1, offset, str_full){
 
 		    if(markdownAlt.lock__ESCAPE){
 		    	p1 = markdownAlt.safeAttrHtml(p1);
@@ -404,11 +767,11 @@ text text text text
 	// VIMEO
 	//------------------------------
 	/*
-	    ![**VIMEO**](https://www.youtube.com/watch?v=IGcKgTih__4)
+	    !|VIMEO|(https://www.youtube.com/watch?v=IGcKgTih__4)
 	*/ 
 
 	static to_HTML__VIMEO(text){
-	    return text.replace(/(?:\n|^)!\[\*\*VIMEO\*\*\]\((.+?)\)\n/g, function(match, p1, offset, str_full){
+	    return text.replace(/!\|VIMEO\|\((.+?)\)/g, function(match, p1, offset, str_full){
 
 		    if(markdownAlt.lock__ESCAPE){
 		    	p1 = markdownAlt.safeAttrHtml(p1);
@@ -455,11 +818,38 @@ text text text text
     }
 
 
-    static safeAttrHtml(string) {
+
+
+
+    static reentityMap = {
+        '&amp;': '&',
+        '&lt;': '<',
+        '&gt;': '>',
+        '&quot;': '"',
+        '&#39;': "'",
+        '&#x2F;': '/',
+        '&#x60;': '`',
+        '&#x3D;': '='
+    };
+
+    static reescapeHtml(string) {
     	if(undefined === string){
     		return '';
     	}
 
+        return String(string).replace(/(&amp;|&lt;|&gt;|&quot;|&#39;|&#x2F;|&#x60;|&#x3D;)/g, function (s) {
+          return markdownAlt.reentityMap[s];
+        });
+    }
+
+
+
+
+
+    static safeAttrHtml(string) {
+    	if(undefined === string){
+    		return '';
+    	}
         return string.replace(/["']/g, '');
     }
 
@@ -467,12 +857,19 @@ text text text text
 
 
 
-
-
-try {
-    module.exports = markdownAlt;
+/*
+if (typeof module !== 'undefined' && typeof exports === 'object') {
+  module.exports = marked;
+} else if (typeof define === 'function' && define.amd) {
+  define(function() { return marked; });
+} else {
+  root.marked = marked;
 }
-catch (e) {
-   
+})(this || (typeof window !== 'undefined' ? window : global));
+*/
+
+
+if (typeof module !== 'undefined' && typeof exports === 'object') {
+  module.exports = markdownAlt;
 }
 
