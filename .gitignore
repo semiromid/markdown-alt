@@ -1,3 +1,9 @@
 .npmignore
 git-com.txt
 source/
+node_modules/
+node_modules
+
+npm-debug.log
+
+gulpfile.js

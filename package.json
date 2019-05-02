@@ -1,9 +1,9 @@
 {
   "name": "markdown-alt",
-  "version": "0.0.9",
+  "version": "1.0.0",
   "description": "Markdown alternative version",
   "keywords": [
-    "markdown-alt"   
+    "markdown-alt"
   ],
   "homepage": "https://github.com/semiromid/markdown-alt",
   "bugs": "https://github.com/semiromid/markdown-alt/issues",
@@ -15,12 +15,25 @@
   "files": [
     "LICENSE",
     "Readme.md",
-    "index.js"
+    "index.js",
+    "index.min.js"
   ],
-  "main": "index.js",
+  "main": "index.min.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/semiromid/markdown-alt"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.4.4",
+    "@babel/plugin-proposal-class-properties": "^7.4.4",
+    "@babel/preset-env": "^7.4.4",
+    "gulp": "^4.0.1",
+    "gulp-babel": "^8.0.0-beta.2",
+    "gulp-plumber": "^1.2.1",
+    "gulp-uglify": "^3.0.2",
+    "gulp-uglify-es": "^1.0.4"
+  },
+  "dependencies": {
+    "gulp-rename": "^1.4.0"
   }
-
 }
