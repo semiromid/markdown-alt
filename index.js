@@ -129,14 +129,14 @@ class markdownAlt{
 
 
 		if(this.lock__H2){
-			if(/^## .+/.test(text)){
+			if(/^## .+$/.test(text)){
 		    	return this.to_HTML__set_h2(text);
 		    }			
 		}
 
 
 		if(this.lock__H3){
-			if(/^### .+/.test(text)){
+			if(/^### .+$/.test(text)){
 		    	return this.to_HTML__set_h3(text);
 		    }			
 		}
@@ -144,7 +144,7 @@ class markdownAlt{
 
 		if(this.lock__HR){
 			if(/^____+$/.test(text)){
-		    	return this.to_HTML__set_hr(text);
+		    	return this.to_HTML__set_hr();
 		    }			
 		}
 
@@ -179,27 +179,27 @@ class markdownAlt{
 
 
 		if(this.lock__IMG){
-			if(/^!\[.*?\]\(.+? ".*?"(\[source=.+?\])?\)/.test(text)){
+			if(/^!\[.*?\]\(.+? ".*?"(\[source=.+?\])?\)$/.test(text)){
 		    	return this.to_HTML__IMG(text);
 		    }			
 		}
 
 
 		if(this.lock__GFYCAT){
-			if(/^!\|GFYCAT\|\(.+? "\[autoplay=(true|false)\]\[quality=(HD|SD)\]\[speed=[0-9]\.[0-9]+?\]\[controls=(true|false)\]"\)/.test(text)){
+			if(/^!\|GFYCAT\|\(.+? "\[autoplay=(1|0)\]\[quality=(1|0)\]\[speed=[0-9]\.[0-9]+?\]\[controls=(1|0)\]"\)$/.test(text)){
 		    	return this.to_HTML__GFYCAT(text);
 		    }			
 		}
 
 		if(this.lock__YOUTUBE){
-			if(/^!\|YOUTUBE\|\(.+?\)/.test(text)){
+			if(/^!\|YOUTUBE\|\(.+?\)$/.test(text)){
 		    	return this.to_HTML__YOUTUBE(text);
 		    }			
 		}
 
 
 	    if(this.lock__VIMEO){
-			if(/^!\|VIMEO\|\(.+?\)/.test(text)){
+			if(/^!\|VIMEO\|\(.+?\)$/.test(text)){
 		    	return this.to_HTML__VIMEO(text);
 		    }	    	
 	    }	  
@@ -223,11 +223,14 @@ class markdownAlt{
 	} 
 
 
+	//------------------------------
+	// A
+	//------------------------------	
 	/*
-	    ![text](https://www.youtube.com/watch?v=IGcKgTih__4)
+	    [text](https://www.youtube.com/watch?v=IGcKgTih__4)
 	*/	
 	static to_HTML__set_a(text){
-	    return text.replace(/!\[(.+?)\]\(([^\s]+?)\)/g, function(match, p1, p2, offset, str_full){
+	    return text.replace(/\[(.+?)\]\(([^\s]+?)\)/g, function(match, p1, p2, offset, str_full){
 	      
 		    if(markdownAlt.lock__ESCAPE){
 		    	p1 = markdownAlt.escapeHtml(p1);
@@ -236,9 +239,22 @@ class markdownAlt{
 		    	p2 = markdownAlt.safeAttrHtml(p2);
 		    }
 
-	      	return '<a rel="noopener noreferrer nofollow" target="_blank" href="'+p2+'">'+p1+'</a>';
+	      	return markdownAlt.layout__A(p1, p2);
 	    });
 	}
+
+	static layout__A(p1, p2){
+		return '<a rel="noopener noreferrer nofollow" target="_blank" href="'+p2+'">'+p1+'</a>';
+	}
+
+	/*
+	//Example extends function
+		static layout__A(p1, p2){
+			return '<a rel="noopener noreferrer nofollow" target="_blank" href="'+p2+'">'+p1+'</a>';
+		}
+	*/
+	//------------------------------
+	//------------------------------
 
 
 
@@ -271,6 +287,9 @@ class markdownAlt{
 	} 
 
 
+	//------------------------------
+	// CODE
+	//------------------------------	
 	/*
 	   Code
 	   `x = 3`
@@ -278,10 +297,22 @@ class markdownAlt{
 	static to_HTML__set_code(text){
 
 	    return text.replace(/(?:`|&#x60;)([\s\S]+?)(?:`|&#x60;)/g, function(match, p1, offset, str_full){
-	        return "<code>"+p1+"</code>";
+	        return markdownAlt.layout__CODE(p1);
 	    });
 	} 
 
+	static layout__CODE(p1){
+		return "<code>"+p1+"</code>";
+	}
+
+	/*
+	//Example extends function
+		static layout__CODE(){
+			return "<code>"+p1+"</code>";
+		}
+	*/
+	//------------------------------
+	//------------------------------
 
 
 
@@ -291,20 +322,33 @@ class markdownAlt{
 
 
 
-
+	//------------------------------
+	// HR
+	//------------------------------
 	/*
 	    ____
 	*/	
-	static to_HTML__set_hr(text){
-	    return text.replace(/____+?/g, function(match, offset, str_full){
-	      	return '<hr>';
-	    });
+	static to_HTML__set_hr(){
+	    return markdownAlt.layout__HR();
 	}   
+
+	static layout__HR(){
+		return '<hr>';
+	}
+
+	/*
+	//Example extends function
+		static layout__HR(){
+			return '<hr>';
+		}
+	*/
+	//------------------------------
+	//------------------------------
 
 
 
 	static to_HTML__set_h2(text){
-	    return text.replace(/## (.+)/g, function(match, p1, offset, str_full){ 
+	    return text.replace(/## (.+)/, function(match, p1, offset, str_full){ 
 
 		    if(markdownAlt.lock__ESCAPE){
 		    	p1 = markdownAlt.escapeHtml(p1);
@@ -316,7 +360,7 @@ class markdownAlt{
 
 
 	static to_HTML__set_h3(text){
-	    return text.replace(/### (.+)/g, function(match, p1, offset, str_full){   
+	    return text.replace(/### (.+)/, function(match, p1, offset, str_full){   
 
 		    if(markdownAlt.lock__ESCAPE){
 		    	p1 = markdownAlt.escapeHtml(p1);
@@ -756,7 +800,7 @@ text text text text
 	*/ 
 
 	static to_HTML__GFYCAT(text){
-	    return text.replace(/!\|GFYCAT\|\((.+?) "\[autoplay=(true|false)\]\[quality=(HD|SD)\]\[speed=([0-9]\.[0-9]+?)\]\[controls=(true|false)\]"\)/g, function(match, p1, p2, p3, p4, p5, offset, str_full){
+	    return text.replace(/!\|GFYCAT\|\((.+?) "\[autoplay=(1|0)\]\[quality=(1|0)\]\[speed=([0-9]\.[0-9]+?)\]\[controls=(1|0)\]"\)/g, function(match, p1, p2, p3, p4, p5, offset, str_full){
 
 		    if(markdownAlt.lock__ESCAPE){
 		    	p1 = markdownAlt.safeAttrHtml(p1);
@@ -772,7 +816,7 @@ text text text text
 
 		href = href+"?autoplay="+autoplay+"&hd="+quality+"&speed="+speed+"&controls="+controls;
 
-	    return '<div><iframe src="'+href+'" frameborder="0" scrolling="no" width="100%" height="100%" allowfullscreen></iframe></div>';
+	    return '<div><iframe src="'+href+'" style="width: 100%; height: 100%; border: 0px;" width="100" height="100" allowfullscreen></iframe></div>';
 	}
 
 	/*
@@ -784,7 +828,7 @@ text text text text
 
 			href = href+"?autoplay="+autoplay+"&hd="+quality+"&speed="+speed+"&controls="+controls;
 
-		    return '<div><iframe src="'+href+'" frameborder="0" scrolling="no" width="100%" height="100%" allowfullscreen></iframe></div>';
+		    return '<div><iframe src="'+href+'" style="width: 100%; height: 100%; border: 0px;" width="100" height="100" allowfullscreen></iframe></div>';
 		}
 	*/
 	//------------------------------
@@ -815,7 +859,7 @@ text text text text
 	} 
 
 	static layout__YOUTUBE(href){
-	    return '<div style="position: relative; padding-bottom: 56.25%;"><iframe style="position: absolute; top: 0; left: 0;" src="'+href+'" frameborder="0" scrolling="no" width="100%" height="100%" allowfullscreen></iframe></div>';
+	    return '<div style="position: relative; padding-bottom: 56.25%;"><iframe style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0px;" src="'+href+'" scrolling="no" width="100" height="100" allowfullscreen></iframe></div>';
 	}
            
           
@@ -835,7 +879,7 @@ text text text text
 	// VIMEO
 	//------------------------------
 	/*
-	    !|VIMEO|(https://www.youtube.com/watch?v=IGcKgTih__4)
+	    !|VIMEO|(https://vimeo.com/groups/582902/videos/327664838)
 	*/ 
 
 	static to_HTML__VIMEO(text){
@@ -845,12 +889,14 @@ text text text text
 		    	p1 = markdownAlt.safeAttrHtml(p1);
 		    }
 
+			p1 = "https://player.vimeo.com/video/"+p1.replace(/.+?\/([0-9]+)$/g, '$1')+"?color=ffffff";
+
 	        return markdownAlt.layout__VIMEO(p1);
 	    });
 	} 
 
 	static layout__VIMEO(href){
-	    return '<div><iframe src="'+href+'" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe></div>';
+	    return '<div style="position: relative; padding: 56.25% 0 0 0;"><iframe src="'+href+'" style="position: absolute; top:0; left:0; border: 0px; width: 100%; height: 100%;" allow="autoplay; fullscreen" allowfullscreen></iframe></div>';
 	}
 
 	/*
