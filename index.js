@@ -327,7 +327,9 @@ class markdownAlt{
 	}
 
 
-
+	//------------------------------
+	// PRE CODE
+	//------------------------------
 	/*
 ``` 
 var i; 
@@ -341,9 +343,27 @@ console.log(i);
 	      	
 		    p1 = markdownAlt.escapeHtml(p1);	
 	      	p1 = markdownAlt.to_HTML__set_br(p1);
-	      	return '<pre><code>'+p1+'</code></pre>';
+	      	return markdownAlt.layout__PRE_CODE(p1);
 	    });
 	} 
+	static layout__PRE_CODE(text){
+		return '<pre><code>'+p1+'</code></pre>';
+	}
+
+	/*
+	//Example extends function
+		static layout__PRE_CODE(text){
+			return '<pre><code>'+p1+'</code></pre>';
+		}
+	*/
+	//------------------------------
+	//------------------------------
+
+
+
+
+
+
 
 
 
