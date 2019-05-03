@@ -338,6 +338,9 @@ console.log(i);
 	*/	
 	static to_HTML__set_pre_code(text){
 	    return text.replace(/^```\n([\s\S]+?)\n```$/g, function(match, p1, offset, str_full){
+	      	
+		    p1 = markdownAlt.escapeHtml(p1);	
+	      	p1 = markdownAlt.to_HTML__set_br(p1);
 	      	return '<pre><code>'+p1+'</code></pre>';
 	    });
 	} 
