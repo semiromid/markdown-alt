@@ -18,6 +18,8 @@ class markdownAlt{
 	static lock__BR = true;
 	static lock__TEXT_BOLD = true;
 	static lock__TEXT_ITALIC = true;
+	static lock__CODE = true;
+	static lock__PRE_CODE = true;
 	static lock__H2 = true;
 	static lock__H3 = true;
 	static lock__A = true;
@@ -99,6 +101,12 @@ class markdownAlt{
 			    if(markdownAlt.lock__TEXT_ITALIC){
 			    	p2 = markdownAlt.to_HTML__set_text_italic(p2);
 			    }
+
+			    // CODE
+			    if(markdownAlt.lock__CODE){
+			    	p2 = markdownAlt.to_HTML__set_code(p2);
+			    }
+
 	            //-----------------------------			    
 	        }else{
 	        	return p1+markdownAlt.html+p3;
@@ -135,7 +143,7 @@ class markdownAlt{
 
 
 		if(this.lock__HR){
-			if(/^____+/.test(text)){
+			if(/^____+$/.test(text)){
 		    	return this.to_HTML__set_hr(text);
 		    }			
 		}
@@ -144,6 +152,13 @@ class markdownAlt{
 		if(this.lock__QUOTE){
 			if(/^> [\s\S]+/.test(text)){		
 		    	return this.to_HTML__set_quote(text);
+		    }	
+		}
+
+
+		if(this.lock__PRE_CODE){
+			if(/^```\n[\s\S]+?\n```$/.test(text)){		
+		    	return this.to_HTML__set_pre_code(text);
 		    }	
 		}
 		
@@ -256,6 +271,20 @@ class markdownAlt{
 	} 
 
 
+	/*
+	   Code
+	   `x = 3`
+	*/
+	static to_HTML__set_code(text){
+
+	    return text.replace(/(?:`|&#x60;)([\s\S]+?)(?:`|&#x60;)/g, function(match, p1, offset, str_full){
+	        return "<code>"+p1+"</code>";
+	    });
+	} 
+
+
+
+
 
 
 
@@ -296,6 +325,23 @@ class markdownAlt{
 	      	return "<h3>"+p1+"</h3>";
 	    });
 	}
+
+
+
+	/*
+``` 
+var i; 
+for (i=0; i<5; i++) { 
+console.log(i); 
+} 
+```
+	*/	
+	static to_HTML__set_pre_code(text){
+	    return text.replace(/^```\n([\s\S]+?)\n```$/g, function(match, p1, offset, str_full){
+	      	return '<pre><code>'+p1+'</code></pre>';
+	    });
+	} 
+
 
 
 
@@ -812,7 +858,7 @@ text text text text
     		return '';
     	}
 
-        return String(string).replace(/[&<>"'`=\/]/g, function (s) {
+        return String(string).replace(/[&<>"'`=/]/g, function (s) {
           return markdownAlt.entityMap[s];
         });
     }
