@@ -215,10 +215,10 @@ class markdownAlt{
 	    \n
 	*/
 	static to_HTML__set_paragraph(text){
-	    return text.replace(/(<p>)([\s\S]+?)(<\/p>)/g, function(match, p1, p2, p3, offset, str_full){
+	    return text.replace(/((?:\n\\)+)\n/g, function(match, p1, offset, str_full){
 
-	        p2 = p2.replace(/(\n(?:\\)\n|(?:(?<=\n)\\)\n)/g, "<br>");
-	        return p1+p2+p3;
+	        p1 = p1.replace(/\n\\/g, "<br>");
+	        return p1;
 	    });
 	} 
 
