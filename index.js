@@ -404,6 +404,8 @@ for (i=0; i<5; i++) {
 		    p2 = markdownAlt.escapeHtml(p2);	
 	      	p2 = markdownAlt.to_HTML__set_br(p2);
 	      	p2 = p2.replace(/ /g, '&emsp;');
+	      	p2 = p2.replace(/\t/g, '&emsp;&emsp;&emsp;&emsp;');
+	      	
 	      	return p1+p2+p3;
 	    });		
 	}
