@@ -52,6 +52,12 @@ class markdownAlt{
 
 
 	static getHTML(html){
+		
+
+		if(this.lock__PRE_CODE){
+			html = this.to_HTML__set_pre_code__Preparation(html);
+		}
+
 	    if(this.lock__P){
 	    	html = this.to_HTML__set_p(html);	    	
 	    }    	
@@ -157,7 +163,7 @@ class markdownAlt{
 
 
 		if(this.lock__PRE_CODE){
-			if(/^ {0,5}```\n[\s\S]+?\n``` {0,5}$/.test(text)){	
+			if(/^```\n[\s\S]+?\n```$/.test(text)){	
 		    	return this.to_HTML__set_pre_code(text);
 		    }	
 		}
@@ -381,14 +387,33 @@ for (i=0; i<5; i++) {
 console.log(i); 
 } 
 ```
+
+```
+var i; 
+for (i=0; i<5; i++) { 
+              console.log(i);
+              if(){
+
+              }
+}
+```
+
 	*/	
+	static to_HTML__set_pre_code__Preparation(text){
+		return text.replace(/((?:\n\n|^)```\n)([\s\S]+?)(\n```(?:\n\n|$))/g, function(match, p1, p2, p3, offset, str_full){
+		    p2 = markdownAlt.escapeHtml(p2);	
+	      	p2 = markdownAlt.to_HTML__set_br(p2);
+	      	p2 = p2.replace(/ /g, '&emsp;');
+	      	return p1+p2+p3;
+	    });		
+	}
+
 	static to_HTML__set_pre_code(text){
-	    return text.replace(/^ {0,5}```\n([\s\S]+?)\n``` {0,5}$/g, function(match, p1, offset, str_full){
-		    p1 = markdownAlt.escapeHtml(p1);	
-	      	p1 = markdownAlt.to_HTML__set_br(p1);
+	    return text.replace(/^```\n([\s\S]+?)\n```$/g, function(match, p1, offset, str_full){
 	      	return markdownAlt.layout__PRE_CODE(p1);
 	    });
 	} 
+	
 	static layout__PRE_CODE(text){
 		return '<pre><code>'+text+'</code></pre>';
 	}
