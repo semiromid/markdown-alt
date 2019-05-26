@@ -76,6 +76,12 @@ class markdownAlt{
 	    	markdownAlt.html = markdownAlt.to_HTML__otherTAGs(p2);
 
 	        if(!markdownAlt.html){
+
+	        	// Screening makdown-alt code
+				if(/^\\\\[\s\S]+$/.test(p2)){
+				    p2 = p2.replace(/(^\\\\?)/, '');
+				}			    
+
 			    if(markdownAlt.lock__ESCAPE){
 			    	p2 = markdownAlt.escapeHtml(p2);
 			    }	  
@@ -170,14 +176,14 @@ class markdownAlt{
 		
 
 		if(this.lock__LIST_UL){
-			if(/^- [\s\S]+/.test(text)){
+			if(/^- [\s\S]+$/.test(text)){
 		    	return this.getList__ul_li(text);
 		    }
 		}
 
 
 		if(this.lock__LIST_OL){
-			if(/[0-9]+\. [\s\S]+/.test(text)){
+			if(/^[0-9]+\. [\s\S]+$/.test(text)){
 		    	return this.getList__ol_li(text);
 		    }
 		}
