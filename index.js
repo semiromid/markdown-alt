@@ -27,6 +27,7 @@ class markdownAlt{
 	static lock__GFYCAT = true;
 	static lock__YOUTUBE = true;
 	static lock__VIMEO = true;
+	static lock__TABLE = true;
 
 
 	static lock__ESCAPE = true;
@@ -215,6 +216,18 @@ class markdownAlt{
 		    	return this.to_HTML__VIMEO(text);
 		    }	    	
 	    }	  
+
+
+
+	    if(this.lock__TABLE){
+			if(/^\|[^\n]+\|/.test(text)){
+				const text_table = this.to_HTML__TABLE(text);
+				if(text_table !== false){
+					return text_table;
+				}
+			}    	
+	    }
+
 
 		return false;
 	}
@@ -941,6 +954,201 @@ text text text text
 	*/
 	//------------------------------
 	//------------------------------
+
+
+
+
+
+	//------------------------------
+	// TABLE
+	//------------------------------
+	/*
+
+| Column - 1    | Column - 2 | Column - 3       | Column - 4  |
+|-------------------|:---------------|:--------------------:|-----------------:|
+| aligned-none | aligned-left | aligned-center | aligned-right |
+| data - 1          | left-1          | center-1           | right-1       |
+| data - 2          | left-2          | center-2           | right-2       |
+	    
+	*/ 
+
+	static to_HTML__TABLE(text){
+
+		var arr_1 = [], 
+		    arr_2 = [], 
+		    arr_3 = [],
+
+			index_arr = 1, 
+			index_arr_3 = 0;
+
+		function getTable(str){
+		    let match, 
+		        regExp = /([^\n]+)/g;
+
+		    while ((match = regExp.exec(str)) !== null) {
+
+		          // [1]
+		          if(index_arr == 1){
+		              arr_1 = getArray_1(match[1]);
+		          }
+
+		          // [2]
+		          if(index_arr == 2){
+		              arr_2 = getArray_2(match[1]);
+		          }
+
+		          // [3]
+		          if(index_arr > 2){
+		              arr_3[index_arr_3] = [];
+		              arr_3[index_arr_3] = getArray_1(match[1]);
+
+		              index_arr_3 = index_arr_3 + 1;
+		          }
+
+		          index_arr = index_arr + 1;
+		    } 
+		}
+
+
+
+		function getArray_1(str){
+		    let match, 
+		        arr = [],
+		        regExp = /\|([^|]+)\|/g;
+
+		    while ((match = regExp.exec(str)) !== null) {
+		         arr.push(match[1]);
+		         regExp.lastIndex = regExp.lastIndex - 1;
+		    } 
+		    return arr.length > 0 ? arr : false;
+		}
+
+
+
+		function getArray_2(str){
+		    let match, 
+		        arr = [],
+		        regExp = /\|(:?---+:?)\|/g;
+
+		    while ((match = regExp.exec(str)) !== null) {
+
+		         if(/^:---+:$/.test(match[1])){
+		            arr.push('style="text-align: center;"');
+		         }else if(/^:---+$/.test(match[1])){
+		            arr.push('style="text-align: left;"');
+		         }else if(/^---+:$/.test(match[1])){
+		           arr.push('style="text-align: right;"');
+		         }else{
+		            arr.push('none');
+		         }
+		         regExp.lastIndex = regExp.lastIndex - 1;
+		    } 
+		    return arr.length > 0 ? arr : false;
+		}
+
+
+		getTable(text);
+
+		if(arr_1.length > 0 && arr_2.length > 0 && arr_1.length !== arr_2.length){
+			return false
+		}
+
+		//------------------------
+		function getHeader(){
+		  let header = '<thead><tr>', style = '';
+
+		  	for (var i = 0; i < arr_1.length; i++) {
+
+	            style = '';
+	            if(arr_2[i] !== 'none'){
+	                style = ' '+arr_2[i]+' ';
+	            }
+
+		        header = header+"<th"+style+">"+markdownAlt.escapeHtml(arr_1[i])+"</th>";
+		  	}
+		  return header+"</tr></thead>";
+		} 
+
+
+
+	    function getTable_2(){
+	      let h = '<tbody>';
+	      for (var i = 0; i < arr_3.length; i++) {
+
+	            h = h+"<tr>"+getTable_3(arr_3[i])+"</tr>";
+	      }
+	      return h+"</tbody>";
+	    } 
+
+
+	    function getTable_3(arr){
+	      let t = '', style = '';
+
+	      for (var i = 0; i < arr_2.length; i++) {
+	            style = '';
+	            if(arr_2[i] !== 'none'){
+	                style = ' '+arr_2[i]+' ';
+	            }
+
+	            if(arr.length > i){
+	            	t = t+"<td"+style+">"+markdownAlt.escapeHtml(arr[i])+"</td>";
+	            }
+	      }
+	      return t;
+	    } 
+ 
+		//------------------------
+
+		return "<table>"+getHeader()+getTable_2()+"</table>";
+	} 
+	//------------------------------
+	//------------------------------
+	//------------------------------
+	//------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     static entityMap = {
